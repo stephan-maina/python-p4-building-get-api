@@ -1,27 +1,28 @@
-from app import db
-from models import Book, Team
+from flask_sqlalchemy import SQLAlchemy
 
-# Create and add some initial data to the database
-def seed_data():
-    with db.app.app_context():
-        db.create_all()
+db = SQLAlchemy()
 
-        # Add books (players)
-        book1 = Book(title='Cristiano Ronaldo', author='Al Nassr')
-        book2 = Book(title='Darwin Nunez', author='Liverpool FC')
-        book3 = Book(title='Valverde', author='Real Madrid')
+class Book(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    author = db.Column(db.String(255), nullable=False)
 
-        db.session.add(book1)
-        db.session.add(book2)
-        db.session.add(book3)
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'author': self.author
+        }
 
-        # Add teams
-        team1 = Team(name='Al Nassr', player='Cristiano Ronaldo')
-        team2 = Team(name='Liverpool FC', player='Darwin Nunez')
-        team3 = Team(name='Real Madrid', player='Valverde')
+class Team(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    player = db.Column(db.String(255), nullable=False)
 
-        db.session.add(team1)
-        db.session.add(team2)
-        db.session.add(team3)
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'player': self.player
+        }
 
-        db.session.commit()
