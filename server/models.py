@@ -1,50 +1,27 @@
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData
+from app import db
+from models import Book, Team
 
-metadata = MetaData(naming_convention={
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-})
+# Create and add some initial data to the database
+def seed_data():
+    with db.app.app_context():
+        db.create_all()
 
-db = SQLAlchemy(metadata=metadata)
+        # Add books (players)
+        book1 = Book(title='Cristiano Ronaldo', author='Al Nassr')
+        book2 = Book(title='Darwin Nunez', author='Liverpool FC')
+        book3 = Book(title='Valverde', author='Real Madrid')
 
-class Game(db.Model):
-    __tablename__ = 'games'
+        db.session.add(book1)
+        db.session.add(book2)
+        db.session.add(book3)
 
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String, unique=True)
-    genre = db.Column(db.String)
-    platform = db.Column(db.String)
-    price = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(db.DateTime, onupdate=db.func.now())
+        # Add teams
+        team1 = Team(name='Al Nassr', player='Cristiano Ronaldo')
+        team2 = Team(name='Liverpool FC', player='Darwin Nunez')
+        team3 = Team(name='Real Madrid', player='Valverde')
 
-    reviews = db.relationship('Review', backref='game')
+        db.session.add(team1)
+        db.session.add(team2)
+        db.session.add(team3)
 
-    def __repr__(self):
-        return f'<Game {self.title} for {self.platform}>'
-
-class Review(db.Model):
-    __tablename__ = 'reviews'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    score = db.Column(db.Integer)
-    comment = db.Column(db.String)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(db.DateTime, onupdate=db.func.now())
-
-    game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-
-    def __repr__(self):
-        return f'<Review ({self.id}) of {self.game}: {self.score}/10>'
-
-class User(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(db.DateTime, onupdate=db.func.now())
-
-    reviews = db.relationship('Review', backref='user')
+        db.session.commit()
